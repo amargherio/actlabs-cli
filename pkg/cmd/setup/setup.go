@@ -2,6 +2,7 @@ package setup
 
 import (
 	"fmt"
+	"github.com/amargherio/actlabs-cli/internal/tui/setup"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +14,7 @@ type SetupOptions struct {
 	ResourceGroupName string
 	TenantID          string
 	SubscriptionID    string
+	Location          string
 	IsInteractive     bool
 }
 
@@ -41,6 +43,12 @@ to quickly create a Cobra application.`,
 		"repro-project",
 		"The name of the resource group ACTLabs will use when creating resources for labs and other deployments.")
 
+	setupCmd.Flags().StringVarP(&ResourceGroupName,
+		"location",
+		"l",
+		"eastus2",
+		"The location for the ACTLabs resource group and default resources. Defaults to eastus2.")
+
 	setupCmd.Flags().StringVar(&TenantID,
 		"tenant-id",
 		"",
@@ -56,7 +64,7 @@ If this value is not provided, ACTLabs will attempt to use the value of the AZUR
 
 If this value is not provided, ACTLabs will attempt to use the value of the AZURE_SUBSCRIPTION_ID environment variable or the id value provided by Azure CLI.`)
 
-	setupCmd.Flags().Bool("interactive", false, "Run the ACTLabs environment setup in an interactive mode.")
+	setupCmd.Flags().Bool("interactive", true, "Run the ACTLabs environment setup in an interactive mode.")
 
 	return setupCmd
 }
@@ -81,8 +89,11 @@ func parseFlags(cmd *cobra.Command, args []string) SetupOptions {
 func setupRun(opts SetupOptions) error {
 	fmt.Println("setup called")
 
-	if opts.IsInteractive {
-
+	if !opts.IsInteractive {
+		fmt.Println("Running in non-interactive mode.")
+		return nil
+	} else {
+		setup.InteractiveSetup(&opts)
 	}
 
 	return nil
