@@ -23,6 +23,7 @@ package main
 
 import (
 	"context"
+	"github.com/amargherio/actlabs-cli/internal/config"
 	"github.com/amargherio/actlabs-cli/pkg/cmd/root"
 )
 
@@ -30,6 +31,7 @@ func main() {
 	ctx := context.Background()
 
 	// todo: do config here at some point
+	config.InitConfig("")
 
 	cmd, err := root.NewRootCmd()
 	if err != nil {

@@ -3,12 +3,15 @@ package setup
 import (
 	"fmt"
 	"github.com/amargherio/actlabs-cli/internal/tui/setup"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
 
 var ResourceGroupName string
 var TenantID string
 var SubscriptionID string
+var Location string
 
 type SetupOptions struct {
 	ResourceGroupName string
@@ -43,7 +46,7 @@ to quickly create a Cobra application.`,
 		"repro-project",
 		"The name of the resource group ACTLabs will use when creating resources for labs and other deployments.")
 
-	setupCmd.Flags().StringVarP(&ResourceGroupName,
+	setupCmd.Flags().StringVarP(&Location,
 		"location",
 		"l",
 		"eastus2",
@@ -65,6 +68,7 @@ If this value is not provided, ACTLabs will attempt to use the value of the AZUR
 If this value is not provided, ACTLabs will attempt to use the value of the AZURE_SUBSCRIPTION_ID environment variable or the id value provided by Azure CLI.`)
 
 	setupCmd.Flags().Bool("interactive", true, "Run the ACTLabs environment setup in an interactive mode.")
+	setupCmd.Flags().Bool("local", false, "Run the server components of ACTLabs locally in a Docker container.")
 
 	return setupCmd
 }
@@ -93,7 +97,12 @@ func setupRun(opts SetupOptions) error {
 		fmt.Println("Running in non-interactive mode.")
 		return nil
 	} else {
-		setup.InteractiveSetup(&opts)
+		var (
+			_, err = tea.NewProgram(setup.InitializeModel(ResourceGroupName, TenantID, SubscriptionID, Location)).Run()
+		)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	return nil

@@ -9,6 +9,8 @@ import (
 
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig(cfgFile string) {
+	viper.SetEnvPrefix("ACTLABS")
+
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
