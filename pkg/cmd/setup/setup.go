@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ResourceGroupName string
 var TenantID string
 var SubscriptionID string
 var Location string
@@ -40,12 +39,6 @@ to quickly create a Cobra application.`,
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	setupCmd.Flags().StringVarP(&ResourceGroupName,
-		"resource-group",
-		"g",
-		"repro-project",
-		"The name of the resource group ACTLabs will use when creating resources for labs and other deployments.")
-
 	setupCmd.Flags().StringVarP(&Location,
 		"location",
 		"l",
@@ -67,7 +60,7 @@ If this value is not provided, ACTLabs will attempt to use the value of the AZUR
 
 If this value is not provided, ACTLabs will attempt to use the value of the AZURE_SUBSCRIPTION_ID environment variable or the id value provided by Azure CLI.`)
 
-	setupCmd.Flags().Bool("interactive", true, "Run the ACTLabs environment setup in an interactive mode.")
+	setupCmd.Flags().Bool("interactive", false, "Run the ACTLabs environment setup in an interactive mode.")
 	setupCmd.Flags().Bool("local", false, "Run the server components of ACTLabs locally in a Docker container.")
 
 	return setupCmd
@@ -83,7 +76,6 @@ func parseFlags(cmd *cobra.Command, args []string) SetupOptions {
 		opts.IsInteractive = interactive
 	}
 
-	opts.ResourceGroupName = ResourceGroupName
 	opts.TenantID = TenantID
 	opts.SubscriptionID = SubscriptionID
 
@@ -91,14 +83,12 @@ func parseFlags(cmd *cobra.Command, args []string) SetupOptions {
 }
 
 func setupRun(opts SetupOptions) error {
-	fmt.Println("setup called")
-
 	if !opts.IsInteractive {
-		fmt.Println("Running in non-interactive mode.")
+		log.Info("Running in non-interactive mode.")
 		return nil
 	} else {
 		var (
-			_, err = tea.NewProgram(setup.InitializeModel(ResourceGroupName, TenantID, SubscriptionID, Location)).Run()
+			_, err = tea.NewProgram(setup.InitializeModel(TenantID, SubscriptionID, Location)).Run()
 		)
 		if err != nil {
 			log.Error(err)
